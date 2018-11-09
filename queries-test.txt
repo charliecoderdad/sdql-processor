@@ -1,0 +1,1 @@
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=A+and+op%3AH+and+p%3Afree+throws+made%3E%3D29+and+not+C

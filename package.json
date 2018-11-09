@@ -1,0 +1,17 @@
+{
+  "name": "nba-sdql",
+  "version": "1.0.0",
+  "description": "Run NBA SDQL queries and talley best bets",
+  "main": "runQueries.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nodemailer": "^4.3.1",
+    "request": "^2.76.0",
+    "sleep-promise": "^2.0.0",
+    "yargs": "^6.3.0"
+  }
+}

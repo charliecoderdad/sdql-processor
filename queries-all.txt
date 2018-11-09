@@ -1,0 +1,9 @@
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=A+and+op%3AH+and+p%3Afree+throws+made%3E%3D29+and+not+C
+O,http://sportsdatabase.com/ncaabb/query?output=default&sdql=((ou+streak%3C-1+and+o%3Aou+streak%3C-1)+or+ou+streak%3C-2)+and+o%3Arest%3E%3D5+and+rest%3E%3D5
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=CD+and+op%3Apoints-p%3Apoints%3E%3D42+and+not+p%3AF
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=game+number%3E%3D5+and+p%3Awins%3D0+and+p%3AW
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+streak%3E%3D9+and+losses%3C%3D3+and+rank+is+None+and+o%3Arank+is+None+and+not+op%3ADW+and+not+op%3AFL
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+margin%40team%2CN%3D7)%3E9+and+HF+and+season%3E%3D2014
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+opp%3Amargin%3C-30+and+op%3AW+and+op%3Aline%3E%3D-6
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=AC+and+op%3Afield+goals+made%3Eopo%3Afield+goals+made+and+op%3Afouls%3Eopo%3Afouls%2B10
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Afield+goals+made%3Epo%3Afield+goals+made%2B5+and+po%3Afield+goals+attempted%3Ep%3Afield+goals+attempted%2B10+and+not+AD+and+month!%3D1
