@@ -20,3 +20,6 @@ U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=rest%3D0+and+o%3Are
 U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3E%3D3+and+tS(margin%2CN%3D3)%3C%3D13+and+p%3AH+and+not+HD
 U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+tA(margin%2CN%3D4)%3C%3D-16+and+op%3AH+and+D+and+season%3E%3D2013
 A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+tA(margin%2CN%3D4)%3C%3D-16+and+op%3AA+and+D+and+season%3E%3D2013
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=F+and+p%3Aline+is+None+and+op%3AO+and+p%3Apoints%3E%3D73+and+p%3AHW
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Apoints*2%3Cop%3Apoints+and+not+HD
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=AF+and+streak%3E%3D3+and+51%3C%3DWP%3C%3D60+and+o%3AWP%3C45+and+o%3Arest%3C4
