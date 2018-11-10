@@ -102,7 +102,7 @@ for (var i = 0; i < originalUrls.length; i++) {
             // Check if team already in array, if so add to hit, otherwise add new picks entry
             var foundExistingPick = false;
             for (var x = 0; x < teamsToBet.picks.length; x++) {
-              if (teamsToBet.picks[x].team === teamsArray[j]) {
+              if (teamsToBet.picks[x].team === teamsArray[j] && teamsToBet.picks[x].betType === betString[0]) {
                 teamsToBet.picks[x].hits++;
                 teamsToBet.picks[x].matchedQuery.push(qNum);
                 teamsToBet.picks[x].queryURL.push(options.theQuery);
@@ -179,29 +179,75 @@ function emailTeamsToBet(teamsToBet) {
     } else {
         mySubject = date + ": NCAA Hoops sdql games found to bet!!!";
         body = "<h1>Games to Bet for " + date + "</h1>";
+
         for (var i = 0; i < teamsToBet.picks.length; i++) {
-            // this for loop is to cylce through opponents to be sure not to print any collisions
-            var collision = false;
-            for (var j = 0; j < teamsToBet.picks.length; j++) {
-                if (teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) {
-                    collision = true;
-                    if (argv.debug || argv.showCollisions) { body += "<span style=\"color:red\"><b>Collision detected: </b></span>"; }
+          // Collision check inner loop
+          for (var j = 0; j < teamsToBet.picks.length; j++) {
+            var pick1betType = teamsToBet.picks[i].betType.toUpperCase();
+            var pick2betType = teamsToBet.picks[j].betType.toUpperCase();
+            // OU collision check
+            if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
+              if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[i].team)) {
+                if ((pick1betType.includes('O') && pick2betType.includes('U')) || (pick1betType.includes('U') && pick2betType.includes('O'))) {
+                  body += "<span style=\"color:red\"><b>Over/Under Collision detected: </b></span>";
+                  break;
                 }
-            }
-            // If no collision print the pick
-            if (!collision || argv.showCollisions) {
-                var starString = getStarsString(teamsToBet.picks[i].queryURL.length);
-                if (teamsToBet.picks[i].queryURL.length>1) { body +="<span style=\"color:#04a314\"><b>" + starString; }
-                body += teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent + "";
-                if (teamsToBet.picks[i].queryURL.length>1) { body+=starString+"</b></span>"; }
-                body += "<br>";
-                for (var j = 0; j < teamsToBet.picks[i].queryURL.length; j++) {
-                    body += "Matched query #" + teamsToBet.picks[i].matchedQuery[j];
-                    body += " (<a href=" + teamsToBet.picks[i].queryURL[j] + ">" + teamsToBet.picks[i].queryURL[j] + "</a>)<br>";
-                }
-            }
-            body += "<br>";
+              }
+            } // END of OU collision check
+            // ATS collision check
+            if (i!=j && teamsToBet.picks[i].betType.toUpperCase()==='A' && teamsToBet.picks[j].betType.toUpperCase()==='A') {
+              //TODO: Test this somehow.. don't think it's right
+              if (teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) {
+                body += "<span style=\"color:red\"><b>ATS Collision detected: </b></span>";
+                break;
+              }
+            } // END OF ATS collision Check
+          } //END OF INNER FOR LOOP for collision check
+
+          // If no collision print the pick
+          var starString = getStarsString(teamsToBet.picks[i].hits);
+          if (teamsToBet.picks[i].hits > 1) {
+            body +="<span style=\"color:#04a314\"><b>" + starString;
+          }
+          //ATS picks
+          if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
+            body += "ATS: " + teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent.toLowerCase();
+          }
+          if (teamsToBet.picks[i].betType.toUpperCase().includes('U')) {
+            body += "UNDER: (" + teamsToBet.picks[i].total + ") " + teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + "";
+          }
+          if (teamsToBet.picks[i].betType.toUpperCase().includes('O')) {
+            body += "OVER: (" + teamsToBet.picks[i].total + ") " + teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + "";
+          }
+
+          if (teamsToBet.picks[i].hits>1) { body+=starString+"</b></span>"; }
+          body += "<br>";
+          for (var j = 0; j < teamsToBet.picks[i].queryURL.length; j++) {
+            body += "Matched query #" + teamsToBet.picks[i].matchedQuery[j];
+            body += " (<a href=" + teamsToBet.picks[i].queryURL[j] + ">" + teamsToBet.picks[i].queryURL[j] + "</a>)<br>";
+          }
+          body += "<br>";
+
+
+          // ADD THE PICKS TO BODY
+          // if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
+          //   console.log("Against the Spread Bet:");
+          //   console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
+          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+          //   console.log("");
+          // }
+          // if (teamsToBet.picks[i].betType.toUpperCase().includes('U')) {
+          //   console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " UNDER the Total: " + teamsToBet.picks[i].total);
+          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+          //   console.log();
+          // }
+          // if (teamsToBet.picks[i].betType.toUpperCase().includes('O')) {
+          //   console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " OVER the Total: " + teamsToBet.picks[i].total);
+          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+          //   console.log();
+          // }
         }
+
     }
 
     // setup e-mail data
@@ -232,36 +278,50 @@ function getStarsString(num) {
 
 // Prints out teams to bet in descending order by how many times found by queries
 function printTeamsToBet(teamsToBet) {
-    if (argv.debug) { console.log("GamesToBet JSON: " + JSON.stringify(teamsToBet,0,3)); }
-    console.log("Games to Bet");
-    console.log("============");
-    for (var i = 0; i < teamsToBet.picks.length; i++) {
-        // this for loop is to cylce through opponents to be sure not to print any collisions
-        var collision = false;
-        for (var j = 0; j < teamsToBet.picks.length; j++) {
-          if (teamsToBet.picks[i].betType.toUpperCase()==='A' && teamsToBet.picks[j].betType.toUpperCase()==='A')
-            if (teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) {
-                collision = true;
-                if (argv.debug || argv.showCollisions) { console.log("Collision detected with team: " + teamsToBet.picks[i].team); }
-            }
-        }
-        // If no collision print the pick
-        if (!collision || argv.showCollisions) {
-          if (teamsToBet.picks[i].betType.toUpperCase() === 'A') {
-            console.log("Against the Spread Bet:");
-            console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
-            console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-            console.log("");
-          }
-          if (teamsToBet.picks[i].betType.toUpperCase() === 'U') {
-            console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " UNDER the Total: " + teamsToBet.picks[i].total);
-            console.log();
-          }
-          if (teamsToBet.picks[i].betType.toUpperCase() === 'O') {
-            console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " OVER the Total: " + teamsToBet.picks[i].total);
-            console.log();
+  if (argv.debug) { console.log("GamesToBet JSON: " + JSON.stringify(teamsToBet,0,3)); }
+  console.log("Games to Bet");
+  console.log("============");
+  //FOR LOOP TO CHECK FOR COLLISIONS BASED ON BET TYPE
+  for (var i = 0; i < teamsToBet.picks.length; i++) {
+    // this for loop is to cylce through opponents to be sure not to print any collisions
+    for (var j = 0; j < teamsToBet.picks.length; j++) {
+      var pick1betType = teamsToBet.picks[i].betType.toUpperCase();
+      var pick2betType = teamsToBet.picks[j].betType.toUpperCase();
+      // OU collision check
+      if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
+        if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[i].team)) {
+          if ((pick1betType.includes('O') && pick2betType.includes('U')) || (pick1betType.includes('U') && pick2betType.includes('O'))) {
+            console.log("OU Collision detected with game: " + teamsToBet.picks[i].team + "/" + teamsToBet.picks[j].opponent);
+            break;
           }
         }
+      } // END of OU collision check
+
+      // ATS collision check
+      if (i!=j && teamsToBet.picks[i].betType.toUpperCase()==='A' && teamsToBet.picks[j].betType.toUpperCase()==='A') {
+        //TODO: Test this somehow.. don't think it's right
+        if (teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) {
+            console.log("ATS Collision detected with team: " + teamsToBet.picks[i].team);
+        }
+      } // END OF ATS collision Check
+    } //END OF INNER FOR LOOP
+
+    if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
+      console.log("Against the Spread Bet:");
+      console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
+      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+      console.log("");
+    }
+    if (teamsToBet.picks[i].betType.toUpperCase().includes('U')) {
+      console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " UNDER the Total: " + teamsToBet.picks[i].total);
+      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+      console.log();
+    }
+    if (teamsToBet.picks[i].betType.toUpperCase().includes('O')) {
+      console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " OVER the Total: " + teamsToBet.picks[i].total);
+      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+      console.log();
     }
 
+  }
 }

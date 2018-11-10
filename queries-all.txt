@@ -7,3 +7,13 @@ A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+mar
 A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+opp%3Amargin%3C-30+and+op%3AW+and+op%3Aline%3E%3D-6
 A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=AC+and+op%3Afield+goals+made%3Eopo%3Afield+goals+made+and+op%3Afouls%3Eopo%3Afouls%2B10
 U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Afield+goals+made%3Epo%3Afield+goals+made%2B5+and+po%3Afield+goals+attempted%3Ep%3Afield+goals+attempted%2B10+and+not+AD+and+month!%3D1
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+p%3Amargin%3Eop%3Amargin%2B10+and+p%3Aline%3Eop%3Aline%2B10+and+month!%3D11
+O,http://sportsdatabase.com/ncaabb/query?output=default&sdql=(H+or+AF)+and+ou+streak%3E3+and+o%3Aou+streak%3E1+and+not+op%3AAL
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+line%3E10+and+total%3E125+and+rest-o%3Arest+in+[-1%2C0%2C1%2C2]+and+not+op%3AAW
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Aovertime%3E%3D1+and+(rest-o%3Arest%3C%3D-3+or+rest-o%3Arest%3E%3D3)+and+month!%3D3
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Aovertime%3E%3D1+and+rest%3D0
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=A+and+tS(L%2CN%3D5)%3D4+and+WP%3C%3D28+and+(140%3C%3Dtotal%3C%3D145)
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=(p%3Athree+pointers+made%2Fp%3Athree+pointers+attempted)%3E0.6+and+p%3Athree+pointers+attempted%3E6+and+D+and+p%3AA
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=HD+and+rank%3C%3D20
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=HD+and+rank%3C%3D20
+U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=rest%3D0+and+o%3Arest%3D0+and+(F+or+HD)+and+p%3AAW

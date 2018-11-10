@@ -1,1 +1,3 @@
-U,http://sportsdatabase.com/ncaabb/query?output=default&sdql=A+and+op%3AH+and+p%3Afree+throws+made%3E%3D29+and+not+C
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+margin%40team%2CN%3D7)%3E9+and+HF+and+season%3E%3D2014
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+margin%40team%2CN%3D7)%3E9+and+HF+and+season%3E%3D2014
+A,http://sportsdatabase.com/ncaabb/query?output=default&sdql=rest%3Do%3Arest

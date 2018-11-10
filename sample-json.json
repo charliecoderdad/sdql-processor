@@ -1,0 +1,33 @@
+teamsToBet
+{
+  "picks": [
+     {
+        "team": "UNLV",
+        "betType": "O",
+        "line": -4.5,
+        "total": 149,
+        "opponent": "LOMAR",
+        "hits": 1,
+        "matchedQuery": [
+           1
+        ],
+        "queryURL": [
+           "http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+margin%40team%2CN%3D7)%3E9+and+HF+and+season%3E%3D2014"
+        ]
+     },
+     {
+        "team": "UNLV",
+        "betType": "U",
+        "line": -4.5,
+        "total": 149,
+        "opponent": "LOMAR",
+        "hits": 1,
+        "matchedQuery": [
+           2
+        ],
+        "queryURL": [
+           "http://sportsdatabase.com/ncaabb/query?output=default&sdql=Average(o%3Aats+margin%40team%2CN%3D7)%3E9+and+HF+and+season%3E%3D2014"
+        ]
+     }
+  ]
+}
