@@ -1,0 +1,4 @@
+A|http://sportsdatabase.com/nba/query?output=default&sdql=F+and+%28op%3Amargin+after+the+third%29%3E%3D5+and+op%3AHL+and+o%3Arest%3D0+and+playoffs%3D0
+A|http://sportsdatabase.com/nba/query?output=default&sdql=(AD+or+HF)+and+p:PTP%3E=33+and+pp:PTP%3E=33+and+(p:W+or+p:FL)+and+o:rest%3C=1+and+playoffs=0
+A|http://sportsdatabase.com/nba/query?output=default&sdql=AD+and+(o:rest=0+or+rest%3E=1)+and+(ats+streak)%3C0+and+0%3Co:ats+streak+and+line%3E=12+and+playoffs=0
+A|http://sportsdatabase.com/nba/query?output=default&sdql=A+and+rest%3E0+and+streak%3E=2+and+p:margin%3E9+and+line%3C-4+and+season%3E2000+and+playoffs=0

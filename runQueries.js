@@ -4,7 +4,7 @@ var sleep = require('sleep-promise');
 var argv = require('yargs')
     .usage('Usage: node $0 [options]')
     .option('date', { alias: 'd', describe: 'Date that query should look to find teams (Format: YYYYMMDD)'})
-    .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'queries-all.txt'})
+    .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'queries-ncaabb-all.txt'})
     .option('delay', { alias: 's', describe: 'Delay between each REST api call in ms', default: 2500 })
     .option('debug', { describe: 'Use this to display extra information during the run', default: false })
     .option('showCollisions', { alias: 'c', describe: 'Will print picks where opponents also matched a query', default: true })
@@ -15,6 +15,7 @@ var argv = require('yargs')
 var date = argv.date;
 var teamsToBet = { "picks": [] };
 var myPromises = [];
+var sportBeingAnalyzed = "";
 
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -40,7 +41,7 @@ for (var i = 0; i < originalUrls.length; i++) {
 
   var promise = new Promise(function(resolve, reject) {
 
-    var betString = originalUrls[i].split(',');
+    var betString = originalUrls[i].split('|');
     var options = {
       queryNumber: i,
       theQuery: betString[1],
@@ -77,6 +78,7 @@ for (var i = 0; i < originalUrls.length; i++) {
           }
 
           // Look for the team and add it to the teams object
+          // console.log("JSON Results: " + JSON.stringify(jsonResponse,0,3));
           var teamsArray = jsonResponse.groups[0].columns[0];
           var linesArray = jsonResponse.groups[0].columns[1];
           var opponentsArray = jsonResponse.groups[0].columns[2];
@@ -138,15 +140,34 @@ Promise.all(myPromises).then(function(results){
 });
 
 // Converts original SDQL http URL into the API url that returns JSON
-function buildRequestUrl(orignalUrl, date) {
-    var query = orignalUrl.substr(orignalUrl.indexOf("&sdql=")+6, orignalUrl.length);
+function buildRequestUrl(origUrl, date) {
+    origUrl = origUrl.toString().trim();
+    var query = origUrl.substr(origUrl.indexOf("sdql=")+5, origUrl.length);
+    // console.log("Original URL: " + origUrl);
+    // console.log("query found: |" + query + "|");
+    var sport = null;
+    if (origUrl.toLowerCase().includes("nba/query")) {
+      sport = "nba";
+      sportBeingAnalyzed = "NBA";
+    }
+    if (origUrl.toLowerCase().includes('ncaabb/query')) {
+      sport = "ncaabb";
+      sportBeingAnalyzed = "College Hoops";
+    }
+    if (origUrl.toLowerCase().includes('ncaafb/query')) {
+      sport = "ncaafb";
+      sportBeingAnalyzed = "College Football";
+    }
+    if (origUrl.toLowerCase().includes('nfl/query')) {
+      sportBeingAnalyzed = "NFL";
+      sport = "nfl";
+    }
 
-    var returnUrl = " http://api.sportsdatabase.com/ncaabb/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
-    returnUrl+=query;
-    // TODO: REMOVE TIHS date declaration LATER, using for debugging
-    // date="20171129";
-    returnUrl+="+and+date%3D" + date;
-    returnUrl+="&output=json&api_key=guest";
+    var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
+    returnUrl += query.toString();
+    returnUrl += "+and+date%3D" + date;
+    returnUrl += "&output=json&api_key=guest";
+    // console.log("Debugs Return URL: " + returnUrl);
     return returnUrl;
 }
 
@@ -174,10 +195,10 @@ function emailTeamsToBet(teamsToBet) {
     var mySubject = null;
     var body = null;
     if (teamsToBet.picks.length === 0) {
-        mySubject = "There are NO sdql games to bet for " + date;
+        mySubject = "There are NO " + sportBeingAnalyzed + " sdql games to bet for " + date;
         body = "No games found for betting today.";
     } else {
-        mySubject = date + ": NCAA Hoops sdql games found to bet!!!";
+        mySubject = date + ": " + sportBeingAnalyzed + " sdql games found to bet!!!";
         body = "<h1>Games to Bet for " + date + "</h1>";
 
         for (var i = 0; i < teamsToBet.picks.length; i++) {
@@ -227,29 +248,9 @@ function emailTeamsToBet(teamsToBet) {
             body += " (<a href=" + teamsToBet.picks[i].queryURL[j] + ">" + teamsToBet.picks[i].queryURL[j] + "</a>)<br>";
           }
           body += "<br>";
-
-
-          // ADD THE PICKS TO BODY
-          // if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
-          //   console.log("Against the Spread Bet:");
-          //   console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
-          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-          //   console.log("");
-          // }
-          // if (teamsToBet.picks[i].betType.toUpperCase().includes('U')) {
-          //   console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " UNDER the Total: " + teamsToBet.picks[i].total);
-          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-          //   console.log();
-          // }
-          // if (teamsToBet.picks[i].betType.toUpperCase().includes('O')) {
-          //   console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " OVER the Total: " + teamsToBet.picks[i].total);
-          //   console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-          //   console.log();
-          // }
         }
 
     }
-
     // setup e-mail data
     var mailOptions = {
         from: 'charlieplex', // sender address
@@ -258,7 +259,6 @@ function emailTeamsToBet(teamsToBet) {
         text: body, // plaintext body
         html: body // html body
     };
-
     // send mail with defined transport object
     transporter.sendMail(mailOptions, function (error, info) {
         if (error) {

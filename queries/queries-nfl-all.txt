@@ -1,0 +1,2 @@
+A|http://sportsdatabase.com/nfl/query?output=default&sdql=((tA(turnovers%2CN%3D3)-oA(turnovers%2CN%3D3)%3C%3D-1.7)+or+(tA(turnovers%2CN%3D4)-oA(turnovers%2CN%3D4)%3C%3D-1.5)+or+(tA(turnovers%2CN%3D5)-oA(turnovers%2CN%3D5)%3C%3D-1.35))+and+season%3E2010
+A|http://sportsdatabase.com/nfl/query?output=default&sdql=day%3DThursday+and+HF
