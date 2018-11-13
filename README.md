@@ -6,5 +6,4 @@ Reads a list of SDQL queries from a file specified on the command line.  Then it
 
 \<type of query,queryurl\>
   
-Type of query:  Must be 'A', 'O', or 'U' which corresponds with 'Against the Spread', 'Over', and 'Under'
-The query URL can be copied and pasted from sportsdatabase or killersports and should have any trailing "&submit=++S+D+Q+L+!++" string removed 
+Type of query:  Must be 'A', 'O', or 'U' which corresponds with 'Against the Spread', 'Over', and 'Under'.  The query URL can be copied and pasted from sportsdatabase or killersports and should have any trailing "&submit=++S+D+Q+L+!++" string removed.  The file can contain as many queries as you like, with each entry on it's own separate line.
