@@ -1,68 +1,51 @@
 {
-  "betSlip": {
-    "wagers": [{
-      "wagerType": "Straight",
-      "price": -105,
-      "risk": 52.5,
-      "toWin": 50,
-      "selections": [{
-        "evt": {
-          "id": 142222513,
-          "isProp": false,
-          "isCutOff": false,
-          "isDown": false,
-          "participants": [{
-            "id": "Cal Riverside",
-            "name": "Cal Riverside",
-            "rotation": 533,
-            "keyPlayer": ""
-          }, {
-            "id": "UNLV",
-            "name": "UNLV",
-            "rotation": 534,
-            "keyPlayer": ""
-          }],
-          "sport": "Basketball",
-          "league": "NCAA",
-          "notes": "",
-          "category": "",
-          "_coreSelection": null
-        },
-        "market": {
-          "marketType": "Spread",
-          "periodNum": 0,
-          "periodName": "Game",
-          "participant": "Cal Riverside vs UNLV",
-          "wagerLimit": 0,
-          "isCutOff": false,
-          "isDown": false
-        },
-        "outcome": {
-          "id": "142222513_Spread_CalRiversidevsUNLV_0_UNLV",
-          "outcome": "UNLV",
-          "price": -105,
-          "points": -12.5,
-          "originalPoints": -12.5,
-          "pointsBought": 0,
-          "isAlternate": false,
-          "undiscountedPrice": -110,
-          "adjustableOdds": "Y"
-        },
-        "risk": 52.5,
-        "toWin": 50,
-        "manualLine": false,
-        "guid": "99bbb96d-e842-491a-a497-876b83236f78",
-        "label": "UNLV Spread",
-        "pointsLabel": "",
-        "loadingLimit": false,
-        "selectionLimit": 2000,
-        "maxLimitSide": "To Win"
-      }],
-      "options": [],
-      "baseWager": null,
-      "walletId": "cash",
-      "freeSpots": 0
-    }],
-    "rbCount": 1
-  }
+   "headers": [
+      "points",
+      "o:points",
+      "line",
+      "total"
+   ],
+   "groups": [
+      {
+         "sdql": "day = Thursday and HF and season = 2018 and month = 11",
+         "columns": [
+            [
+               34,
+               52,
+               null,
+               null,
+               null,
+               null,
+               null
+            ],
+            [
+               3,
+               21,
+               null,
+               null,
+               null,
+               null,
+               null
+            ],
+            [
+               -2.5,
+               -4.5,
+               -2.5,
+               -6,
+               -5,
+               -3.5,
+               -1.5
+            ],
+            [
+               45.5,
+               52,
+               49,
+               null,
+               null,
+               null,
+               null
+            ]
+         ]
+      }
+   ]
 }

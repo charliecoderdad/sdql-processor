@@ -1,13 +1,12 @@
 var request = require('request');
 var fs = require('fs');
 var sleep = require('sleep-promise');
+var nodemailer = require('nodemailer');
 var argv = require('yargs')
     .usage('Usage: node $0 [options]')
-    .option('date', { alias: 'd', describe: 'Date that query should look to find teams (Format: YYYYMMDD)'})
     .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'queries-ncaabb-all.txt'})
+    .option('date', { alias: 'd', describe: 'Date that query should look to find teams (Format: YYYYMMDD)'})
     .option('delay', { alias: 's', describe: 'Delay between each REST api call in ms', default: 2500 })
-    .option('debug', { describe: 'Use this to display extra information during the run', default: false })
-    .option('showCollisions', { alias: 'c', describe: 'Will print picks where opponents also matched a query', default: true })
     .option('mail', { alias: 'm', describe: 'Send email of picks to specified email address', default: null})
     .help('--help')
     .argv;
@@ -17,18 +16,8 @@ var teamsToBet = { "picks": [] };
 var myPromises = [];
 var sportBeingAnalyzed = "";
 
-var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'charles.fun.svt',
-        pass: 'il0vesvt'
-    }
-});
-
 // If no date specified as an option then set it to todays date
 if (date === undefined) { date = getTodaysDate(); }
-if (argv.debug) { console.log("Using date: " + date); }
 
 // Code to read queries from file and store the URLs into an array
 var originalUrls = fs.readFileSync(argv.file).toString().split("\n");
@@ -70,11 +59,11 @@ for (var i = 0; i < originalUrls.length; i++) {
           jsonResponse = JSON.parse(jsonResponse);
           // End conversion of response to JSON
 
-          if (argv.debug) {
-            console.log("");
-            console.log("JSON Response: " + JSON.stringify(jsonResponse,0,3));
-            console.log("API Request: " + options.url);
-            console.log("");
+          if (jsonResponse.html) {
+            console.log("Problem found retrieving the JSON results from the query");
+            console.log(qNum + ". WARNING: Problem found with this query: " +options.theQuery);
+            resolve("No records found");
+            return;
           }
 
           // Look for the team and add it to the teams object
@@ -94,11 +83,6 @@ for (var i = 0; i < originalUrls.length; i++) {
               "hits": 1,
               "matchedQuery": [qNum],
               "queryURL": [options.theQuery]
-            }
-            // teamsToBet.picks[matchedQuery].push(qNum);
-            // picksEntry[matchedQuery].push(qNum);
-            if (argv.debug) {
-              console.log(" Picks entry JSON: " + JSON.stringify(picksEntry,0,3));
             }
 
             // Check if team already in array, if so add to hit, otherwise add new picks entry
@@ -167,7 +151,6 @@ function buildRequestUrl(origUrl, date) {
     returnUrl += query.toString();
     returnUrl += "+and+date%3D" + date;
     returnUrl += "&output=json&api_key=guest";
-    // console.log("Debugs Return URL: " + returnUrl);
     return returnUrl;
 }
 
@@ -185,6 +168,13 @@ function getTodaysDate() {
 
 function emailTeamsToBet(teamsToBet) {
     console.log("Sending email to: " + argv.mail);
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'charles.fun.svt',
+            pass: 'il0vesvt'
+        }
+    });
     // Get todays date in mm/dd/yyyy format to use in the email
     var date = new Date();
     date = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
@@ -278,7 +268,6 @@ function getStarsString(num) {
 
 // Prints out teams to bet in descending order by how many times found by queries
 function printTeamsToBet(teamsToBet) {
-  if (argv.debug) { console.log("GamesToBet JSON: " + JSON.stringify(teamsToBet,0,3)); }
   console.log("Games to Bet");
   console.log("============");
   //FOR LOOP TO CHECK FOR COLLISIONS BASED ON BET TYPE
