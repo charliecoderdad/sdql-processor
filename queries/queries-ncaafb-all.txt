@@ -2,3 +2,4 @@ A|http://killersports.com/ncaafb/query?sdql=o%3AWP%3C35+and+C+and+-17%3E%3Dline%
 A|http://killersports.com/ncaafb/query?sdql=ADC+and+season%3E%3D2016+and+3%3C%3Dline%3C%3D13+and+conference+in+[USA%2CSBC%2CMWC%2CMAC%2CB12%2CACC]
 U|http://killersports.com/ncaafb/query?sdql=ADC+and+season%3E%3D2016+and+3%3C%3Dline%3C%3D13+and+conference+in+[USA%2CSBC%2CMWC%2CMAC%2CB12%2CACC]
 A|http://killersports.com/ncaafb/query?sdql=p%3AAL+and+p%3Aline%3C%3D-5+and+-24%3E%3Dp%3Amargin
+A|http://sportsdatabase.com/ncaafb/query?output=default&sdql=week+in+[11%2C12]+and+season%3E%3D2008+and+(tS(ats+margin%3E0)+%2F+(tS(W)%2BtS(L)))%3E%3D0.75+and+(A+or+D)

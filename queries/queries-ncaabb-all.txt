@@ -23,4 +23,7 @@ A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+
 A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=F+and+p%3Aline+is+None+and+op%3AO+and+p%3Apoints%3E%3D73+and+p%3AHW
 A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Apoints*2%3Cop%3Apoints+and+not+HD
 A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=AF+and+streak%3E%3D3+and+51%3C%3DWP%3C%3D60+and+o%3AWP%3C45+and+o%3Arest%3C4
-U|http://sportsdatabase.com/ncaabb/query?output=default&sdql=season%3E%3D2016+and+o%3Aconference+in+[SEC%2CP12%2CIVY%2CMISSV%2CB12%2CB10]+and+team+in+[WFRST%2CVIRG%2CSYR%2CPITT%2CMIAFL%2CLOUVI%2CGATEC%2CFSU%2CCLEM%2CBC]
+U|STRONG-76% rate as of 11/16/2018|http://sportsdatabase.com/ncaabb/query?output=default&sdql=season%3E%3D2016+and+o%3Aconference+in+[SEC%2CP12%2CIVY%2CMISSV%2CB12%2CB10]+and+team+in+[WFRST%2CVIRG%2CSYR%2CPITT%2CMIAFL%2CLOUVI%2CGATEC%2CFSU%2CCLEM%2CBC]
+A|WEAK-Subject to become outdated. Added 11/2018. Investigate further|http://sportsdatabase.com/ncaabb/query?output=default&sdql=o%3Aconference%3DA10+and+not+C+and+season%3E%3D2015+and+o%3Ateam+not+in+[VCU%2CMASS]+and+not+o%3AF+and+month!%3D3
+A|WEAK-Subject to become outdated. Added 11/2018. Investigate further|http://sportsdatabase.com/ncaabb/query?output=default&sdql=o%3Aconference%3DBIGW+and+not+C+and+F+and+rest-o%3Arest%3E%3D0+and+o%3Ateam+not+in+[UCDAV%2CHAW]
+A|STRONG-High elevation angle|http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+team+in+[NM%2CWYOM]+and+not+C

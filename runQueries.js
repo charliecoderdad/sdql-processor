@@ -31,13 +31,29 @@ for (var i = 0; i < originalUrls.length; i++) {
   var promise = new Promise(function(resolve, reject) {
 
     var betString = originalUrls[i].split('|');
+
+
     var options = {
       queryNumber: i,
-      theQuery: betString[1],
-      url: buildRequestUrl(betString[1], date),
+      theQuery: null,
+      url: null,
       port: 80,
+      comments: null,
       method: 'GET'
     };
+
+    // We have optional comments in the query file.. if we have a comment we need to handle differently
+    if (betString.length === 3) {
+      options.theQuery = betString[2];
+      options.url = buildRequestUrl(betString[2], date);
+      options.comments = betString[1];
+    } else {
+      options.theQuery = betString[1];
+      options.url = buildRequestUrl(betString[1], date);
+    }
+
+    // console.log("URL: " + options.url);
+    // console.log("Comments: "+ options.comments);
 
     sleep(i * argv.delay).then(function() {
       request(options, function(error, response, body) {
@@ -82,6 +98,7 @@ for (var i = 0; i < originalUrls.length; i++) {
               "opponent": opponentsArray[j],
               "hits": 1,
               "matchedQuery": [qNum],
+              "queryComments": [options.comments],
               "queryURL": [options.theQuery]
             }
 
@@ -145,6 +162,14 @@ function buildRequestUrl(origUrl, date) {
     if (origUrl.toLowerCase().includes('nfl/query')) {
       sportBeingAnalyzed = "NFL";
       sport = "nfl";
+    }
+    if (origUrl.toLowerCase().includes('mlb/query')) {
+      sportBeingAnalyzed = "MLB";
+      sport = "mlb";
+    }
+    if (origUrl.toLowerCase().includes('nhl/query')) {
+      sportBeingAnalyzed = "NHL";
+      sport = "nhl";
     }
 
     var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
@@ -233,6 +258,9 @@ function emailTeamsToBet(teamsToBet) {
 
           if (teamsToBet.picks[i].hits>1) { body+=starString+"</b></span>"; }
           body += "<br>";
+          if (teamsToBet.picks[i].queryComments.toString().length > 0) {
+            body += "Query notes: " + teamsToBet.picks[i].queryComments + "<br>";
+          }
           for (var j = 0; j < teamsToBet.picks[i].queryURL.length; j++) {
             body += "Matched query #" + teamsToBet.picks[i].matchedQuery[j];
             body += " (<a href=" + teamsToBet.picks[i].queryURL[j] + ">" + teamsToBet.picks[i].queryURL[j] + "</a>)<br>";
@@ -272,9 +300,10 @@ function printTeamsToBet(teamsToBet) {
   console.log("============");
   //FOR LOOP TO CHECK FOR COLLISIONS BASED ON BET TYPE
   for (var i = 0; i < teamsToBet.picks.length; i++) {
+    var pick1betType = teamsToBet.picks[i].betType.toUpperCase();
     // this for loop is to cylce through opponents to be sure not to print any collisions
     for (var j = 0; j < teamsToBet.picks.length; j++) {
-      var pick1betType = teamsToBet.picks[i].betType.toUpperCase();
+
       var pick2betType = teamsToBet.picks[j].betType.toUpperCase();
       // OU collision check
       if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
@@ -298,6 +327,9 @@ function printTeamsToBet(teamsToBet) {
     if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
       console.log("Against the Spread Bet:");
       console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
+      if (teamsToBet.picks[i].queryComments != null) {
+        console.log("Query notes: " + teamsToBet.picks[i].queryComments);
+      }
       console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
       console.log("");
     }
