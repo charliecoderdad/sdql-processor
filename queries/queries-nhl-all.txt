@@ -1,1 +1,22 @@
 A|11% ROI since 2014|http://sportsdatabase.com/nhl/query?output=default&sdql=AF+and+p%3AHFL+and+season%3E%3D2014
+A|7.2% ROI - Better the more they lost by in prior game|http://sportsdatabase.com/nhl/query?output=default&sdql=HF+and+p%3Agoals%3C%3D1+and+op%3Agoals%3E%3D3+and+p%3AL+and+season%3E%3D2014
+A|12.9% ROI|http://sportsdatabase.com/nhl/query?output=default&sdql=AF+and+tS(L%2CN%3D7)%3E%3D5+and+season%3E%3D2014
+A|10.9% ROI|http://sportsdatabase.com/nhl/query?output=default&sdql=F+and+op%3AUDW+and+o%3Aline%3C150+and+(op%3Agoals%2Bopo%3Agoals)%3E2+and+season%3E%3D2014
+A|7.8% ROI|http://sportsdatabase.com/nhl/query?output=default&sdql=A+and+op%3Astreak%3E%3D3+and+op%3AAL+and+season%3E%3D2014
+A|12.6% ROI - Strong|http://sportsdatabase.com/nhl/query?output=default&sdql=HF+and+o%3Astreak%3E%3D2+and+op%3Agoals%3C4+and+opp%3Agoals%3C4+and+season%3E%3D2014
+A|10.8%|http://sportsdatabase.com/nhl/query?output=default&sdql=WP%3C45+and+o%3AWP%3E45+and+op%3AL+and+month%3D10+and+season%3E%3D2014
+O|63.4% win rate|http://sportsdatabase.com/nhl/query?output=default&sdql=total%3D5+and+rest>%3D4+and+season>%3D2014
+O|65.2% win rate|http://sportsdatabase.com/nhl/query?output=default&sdql=total%3D5+and+p%3AADL+and+145%3Cline%3C190+and+season%3E%3D2014
+A|15.4% ROI - SUPER strong query|http://sportsdatabase.com/nhl/query?output=default&sdql=A+and+streak%3C%3D-2+and+p%3Ashots+on+goal%3Epo%3Ashots+on+goal+and+pp%3Ashots+on+goal%3Eppo%3Ashots+on+goal+and+season%3E%3D2014
+A|17.5% ROI - SUPER strong query|http://sportsdatabase.com/nhl/query?output=default&sdql=H+and+p%3Amargin%3C%3D-3+and+op%3Adivision%3Dopo%3Adivision+and+rest%3C3+and+season%3E%3D2014
+U|56.5% win rate, No BET it's juiced!|http://sportsdatabase.com/nhl/query?output=default&sdql=H+and+tA(penalty+minutes)%3C11.3+and+oA(penalty+minutes)%3C11.3+and+total%3E5+and+tA(shots+on+goal)%2BotA(shots+on+goal)%3C58.8+and+season%3E%3D2014
+A|10.6%|http://sportsdatabase.com/nhl/query?output=default&sdql=streak<%3D-5+and+op%3AL+and+season>%3D2014
+U|67.2%, but small sample size|http://sportsdatabase.com/nhl/query?output=default&sdql=HF+and+conference!%3Do%3Aconference+and+po%3Agoals%3D0+and+season%3E%3D2014+and+op%3Agoals%3E%3D2
+U|62.3% - solid query|http://sportsdatabase.com/nhl/query?output=default&sdql=F+and+p%3Agoals%3C%3D1+and+pp%3Agoals%3C%3D1+and+conference%3Do%3Aconference+and+season%3E%3D2014
+U|65.7% - solid query|http://sportsdatabase.com/nhl/query?output=default&sdql=site+streak%3C%3D-3+and+o%3Asite+streak%3C%3D-3+and+total%3E5+and+season%3E%3D2014
+A|13.2% ROI|http://sportsdatabase.com/nhl/query?output=default&sdql=H+and+tS(goals%3C%3D2%2CN%3D3)%3D3+and+tS(o%3Agoals%3E%3D4%2CN%3D2)%3D2+and+season%3E%3D2014
+O|62.1% win rate|http://sportsdatabase.com/nhl/query?output=default&sdql=tS(goals%3C%3D2%2CN%3D3)%3D3+and+tS(o%3Agoals%3E%3D4%2CN%3D2)%3D2+and+season%3E%3D2014
+U|57.6% win rate, but large sample size, solid query|http://sportsdatabase.com/nhl/query?output=default&sdql=rest%3D0+and+p%3Aovertime%3D1+and+o%3Arest<%3D2+and+season>%3D2014
+A|23.3% ROI, small sample|http://sportsdatabase.com/nhl/query?output=default&sdql=o%3Astreak%3E%3D3+and+oS(margin%2CN%3D3)%3E%3D10+and+not+HF+and+season%3E%3D2014
+O|58.2% win rate, small sample|http://sportsdatabase.com/nhl/query?output=default&sdql=o%3Astreak%3E%3D3+and+oS(margin%2CN%3D3)%3E%3D10+and+not+HF+and+season%3E%3D2014
+A|9.1% ROI, possibly week|http://sportsdatabase.com/nhl/query?output=default&sdql=op%3Apower+play+goals%3E%3D2+and+1%3C%3Dop%3Amargin%3C%3D3+and+AD+and+p%3AL+and+season%3E%3D2014
