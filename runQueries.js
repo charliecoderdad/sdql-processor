@@ -4,7 +4,7 @@ var sleep = require('sleep-promise');
 var nodemailer = require('nodemailer');
 var argv = require('yargs')
     .usage('Usage: node $0 [options]')
-    .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'queries-ncaabb-all.txt'})
+    .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'ncaabb-all.qry'})
     .option('date', { alias: 'd', describe: 'Date that query should look to find teams (Format: YYYYMMDD)'})
     .option('delay', { alias: 's', describe: 'Delay between each REST api call in ms', default: 2500 })
     .option('mail', { alias: 'm', describe: 'Send email of picks to specified email address', default: null})
@@ -223,7 +223,7 @@ function emailTeamsToBet(teamsToBet) {
             var pick2betType = teamsToBet.picks[j].betType.toUpperCase();
             // OU collision check
             if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
-              if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[i].team)) {
+              if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[j].team)) {
                 if ((pick1betType.includes('O') && pick2betType.includes('U')) || (pick1betType.includes('U') && pick2betType.includes('O'))) {
                   body += "<span style=\"color:red\"><b>Over/Under Collision detected: </b></span>";
                   break;
@@ -307,8 +307,12 @@ function printTeamsToBet(teamsToBet) {
       var pick2betType = teamsToBet.picks[j].betType.toUpperCase();
       // OU collision check
       if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
-        if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[i].team)) {
+        if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[j].team)) {
           if ((pick1betType.includes('O') && pick2betType.includes('U')) || (pick1betType.includes('U') && pick2betType.includes('O'))) {
+            // console.log("Pick 1 betType:" + pick1betType);
+            // console.log("Pick 2 betType:" + pick2betType);
+            // console.log("I team/opponnet: " + teamsToBet.picks[i].team + " / " + teamsToBet.picks[i].opponent);
+            // console.log("J team/opponent: " + teamsToBet.picks[j].team + " / " + teamsToBet.picks[j].opponent);
             console.log("OU Collision detected with game: " + teamsToBet.picks[i].team + "/" + teamsToBet.picks[j].opponent);
             break;
           }

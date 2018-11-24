@@ -1,1 +1,0 @@
-O|http://www.sportsdatabase.com/nhl/query?output=default&sdql=A+and+tA%28o%3Agoals%29-tA%28goals%29%3E%3D.44+and+po%3Agoals%3E%3D6+and+ppo%3Agoals%3E%3D4+and+game+number%3C%3D50
