@@ -105,12 +105,26 @@ for (var i = 0; i < originalUrls.length; i++) {
             // Check if team already in array, if so add to hit, otherwise add new picks entry
             var foundExistingPick = false;
             for (var x = 0; x < teamsToBet.picks.length; x++) {
-              if (teamsToBet.picks[x].team === teamsArray[j] && teamsToBet.picks[x].betType === betString[0]) {
-                teamsToBet.picks[x].hits++;
-                teamsToBet.picks[x].matchedQuery.push(qNum);
-                teamsToBet.picks[x].queryURL.push(options.theQuery);
-                foundExistingPick = true;
+              // If over/under then check for duplicates differently
+              if (picksEntry.betType==='U' || picksEntry.betType==='O') {
+                if (teamsToBet.picks[x].betType===picksEntry.betType) {
+                  if (teamsToBet.picks[x].team.toUpperCase()===picksEntry.team.toUpperCase() || teamsToBet.picks[x].team.toUpperCase()===picksEntry.opponent.toUpperCase()) {
+                    teamsToBet.picks[x].hits++;
+                    teamsToBet.picks[x].matchedQuery.push(qNum);
+                    teamsToBet.picks[x].queryURL.push(options.theQuery);
+                    foundExistingPick = true;
+                  }
+                }
+              } else {
+                // If ATS or monelyine bet check for duplicates
+                if (teamsToBet.picks[x].team === picksEntry.team && teamsToBet.picks[x].betType === betString[0]) {
+                  teamsToBet.picks[x].hits++;
+                  teamsToBet.picks[x].matchedQuery.push(qNum);
+                  teamsToBet.picks[x].queryURL.push(options.theQuery);
+                  foundExistingPick = true;
+                }
               }
+
             }
             if (!foundExistingPick) {
               teamsToBet.picks.push(picksEntry);

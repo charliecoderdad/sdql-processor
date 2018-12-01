@@ -39,11 +39,30 @@ for (var i = 0; i < originalUrls.length; i++) {
     var betType = betString[0];
     var options = {
       queryNumber: i,
-      theQuery: betString[1],
-      url: buildRequestUrl(betString[1]),
+      theQuery: null,
+      url: null,
       port: 80,
+      comments: null,
       method: 'GET'
     };
+
+    // var options = {
+    //   queryNumber: i,
+    //   theQuery: betString[1],
+    //   url: buildRequestUrl(betString[1]),
+    //   port: 80,
+    //   method: 'GET'
+    // };
+
+    // We have optional comments in the query file.. if we have a comment we need to handle differently
+    if (betString.length === 3) {
+      options.theQuery = betString[2];
+      options.url = buildRequestUrl(betString[2]);
+      options.comments = betString[1];
+    } else {
+      options.theQuery = betString[1];
+      options.url = buildRequestUrl(betString[1]);
+    }
 
     sleep(i * argv.delay).then(function() {
       request(options, function(error, response, body) {

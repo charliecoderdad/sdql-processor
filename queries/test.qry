@@ -1,2 +1,2 @@
-U|http://sportsdatabase.com/ncaabb/query?output=default&sdql=date%3D20181124+and+team%3DNOTRE&submit=++S+D+Q+L+%21++
-O|http://sportsdatabase.com/ncaabb/query?output=default&sdql=date%3D20181124+and+team%3DNOTRE&submit=++S+D+Q+L+%21++
+U|http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Afield+goals+made%3Epo%3Afield+goals+made%2B5+and+po%3Afield+goals+attempted%3Ep%3Afield+goals+attempted%2B10+and+not+AD+and+month!%3D1
+U|GOOD in 2018 (7-4 as of Nov27). STRONG-76 percent rate as of 11-16-2018|http://sportsdatabase.com/ncaabb/query?output=default&sdql=season%3E%3D2016+and+o%3Aconference+in+[SEC%2CP12%2CIVY%2CMISSV%2CB12%2CB10]+and+team+in+[WFRST%2CVIRG%2CSYR%2CPITT%2CMIAFL%2CLOUVI%2CGATEC%2CFSU%2CCLEM%2CBC]
