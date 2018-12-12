@@ -50,7 +50,6 @@ for (var i = 0; i < originalUrls.length; i++) {
     theQuery: null,
     queryWins: null,
     queryLosses: null,
-    betType: queryOptionsArray[0],
     url: null,
     comments: null,
     retry: true,
@@ -85,7 +84,7 @@ for (var i = 0; i < originalUrls.length; i++) {
 
     //Are we checking historical record of query? If so we do it here!
     if (checkDate) {
-      var queryResults = helper.getQueryPerformance(options, checkDate, null);
+      var queryResults = helper.getQueryPerformance(options.theQuery, queryOptionsArray[0], checkDate, null);
     }
 
     var jsonResponse = helper.stripJsonCallbackWrapper(res.body.toString());
@@ -96,7 +95,7 @@ for (var i = 0; i < originalUrls.length; i++) {
     var totalsArray = jsonResponse.groups[0].columns[3];
     console.log(options.queryNumber + ". Query found a bet to make: " + teamsArray);
     if (queryResults) {
-      console.log("   - Query #" + options.queryNumber + " performance: " + Number(queryResults.winPercent).toFixed(1) + "% (" + queryResults.wins + "-" + queryResults.losses + "-" + queryResults.pushes + ")");
+      console.log("   - Query #" + options.queryNumber + " performance: " + queryResults);
     }
     for (var j = 0; j < teamsArray.length; j++) {
       var picksEntry = {
@@ -106,9 +105,15 @@ for (var i = 0; i < originalUrls.length; i++) {
         "total": totalsArray[j],
         "opponent": opponentsArray[j],
         "hits": 1,
-        "matchedQuery": [options.queryNumber],
-        "queryComments": [options.comments],
+        "matchedQuery": ["#" + options.queryNumber],
+        "queryComments": "",
         "queryURL": [options.theQuery]
+      }
+      if (queryResults) {
+        picksEntry.matchedQuery = ["#" + options.queryNumber + " " + queryResults];
+      }
+      if (options.comments !== null) {
+        picksEntry.queryComments = ["#" + options.queryNumber + " " + options.comments];
       }
 
       // Check if team already in array, if so add to hit, otherwise add new picks entry
@@ -119,7 +124,14 @@ for (var i = 0; i < originalUrls.length; i++) {
           if (teamsToBet.picks[x].betType === picksEntry.betType) {
             if (teamsToBet.picks[x].team.toUpperCase() === picksEntry.team.toUpperCase() || teamsToBet.picks[x].team.toUpperCase() === picksEntry.opponent.toUpperCase()) {
               teamsToBet.picks[x].hits++;
-              teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+              if (queryResults) {
+                teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber + " " + queryResults)
+              } else {
+                teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+              }
+              if (options.comments !== null) {
+                teamsToBet.picks[x].queryComments.push("#" + options.queryNumber + " " + options.comments);
+              }
               teamsToBet.picks[x].queryURL.push(options.theQuery);
               foundExistingPick = true;
             }
@@ -128,7 +140,14 @@ for (var i = 0; i < originalUrls.length; i++) {
           // If ATS or monelyine bet check for duplicates
           if (teamsToBet.picks[x].team === picksEntry.team && teamsToBet.picks[x].betType === queryOptionsArray[0]) {
             teamsToBet.picks[x].hits++;
-            teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+            if (queryResults) {
+              teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber + " " + queryResults)
+            } else {
+              teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+            }
+            if (options.comments !== null) {
+              teamsToBet.picks[x].queryComments.push("#" + options.queryNumber + " " + options.comments);
+            }
             teamsToBet.picks[x].queryURL.push(options.theQuery);
             foundExistingPick = true;
           }
@@ -180,7 +199,9 @@ function emailTeamsToBet(teamsToBet) {
     } else {
         mySubject = date + ": " + sportBeingAnalyzed + " sdql games found to bet!!!";
         body = "<h1>Games to Bet for " + date + "</h1>";
-
+        if (checkDate) {
+          body += "<h3 style='color:grey'>Query performance based on last " + argv.checkFromdaysAgo + " days</h2>";
+        }
         for (var i = 0; i < teamsToBet.picks.length; i++) {
           // Collision check inner loop
           for (var j = 0; j < teamsToBet.picks.length; j++) {
@@ -227,7 +248,7 @@ function emailTeamsToBet(teamsToBet) {
             body += "Query notes: " + teamsToBet.picks[i].queryComments + "<br>";
           }
           for (var j = 0; j < teamsToBet.picks[i].queryURL.length; j++) {
-            body += "Matched query #" + teamsToBet.picks[i].matchedQuery[j];
+            body += "Matched query " + teamsToBet.picks[i].matchedQuery[j];
             body += " (<a href=" + teamsToBet.picks[i].queryURL[j] + ">" + teamsToBet.picks[i].queryURL[j] + "</a>)<br>";
           }
           body += "<br>";
@@ -276,10 +297,6 @@ function printTeamsToBet(teamsToBet) {
       if ((i != j) && (pick1betType.includes('U') || pick1betType.includes('O'))) {
         if ((teamsToBet.picks[i].team === teamsToBet.picks[j].opponent) || (teamsToBet.picks[i].team === teamsToBet.picks[j].team)) {
           if ((pick1betType.includes('O') && pick2betType.includes('U')) || (pick1betType.includes('U') && pick2betType.includes('O'))) {
-            // console.log("Pick 1 betType:" + pick1betType);
-            // console.log("Pick 2 betType:" + pick2betType);
-            // console.log("I team/opponnet: " + teamsToBet.picks[i].team + " / " + teamsToBet.picks[i].opponent);
-            // console.log("J team/opponent: " + teamsToBet.picks[j].team + " / " + teamsToBet.picks[j].opponent);
             console.log("OU Collision detected with game: " + teamsToBet.picks[i].team + "/" + teamsToBet.picks[j].opponent);
             break;
           }
@@ -298,22 +315,17 @@ function printTeamsToBet(teamsToBet) {
     if (teamsToBet.picks[i].betType.toUpperCase().includes('A')) {
       console.log("Against the Spread Bet:");
       console.log(teamsToBet.picks[i].team.toUpperCase() + " (" + teamsToBet.picks[i].line + ") vs. " + teamsToBet.picks[i].opponent);
-      if (teamsToBet.picks[i].queryComments != null) {
-        console.log("Query notes: " + teamsToBet.picks[i].queryComments);
-      }
-      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-      console.log("");
     }
     if (teamsToBet.picks[i].betType.toUpperCase().includes('U')) {
       console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " UNDER the Total: " + teamsToBet.picks[i].total);
-      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-      console.log();
     }
     if (teamsToBet.picks[i].betType.toUpperCase().includes('O')) {
       console.log(teamsToBet.picks[i].team.toUpperCase() + "/" + teamsToBet.picks[i].opponent + " OVER the Total: " + teamsToBet.picks[i].total);
-      console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
-      console.log();
     }
-
+    if (teamsToBet.picks[i].queryComments.toString().length !== 0) {
+      console.log("Query notes: " + teamsToBet.picks[i].queryComments);
+    }
+    console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
+    console.log();
   }
 }

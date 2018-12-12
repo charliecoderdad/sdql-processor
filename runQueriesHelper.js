@@ -3,73 +3,70 @@ var syncRequest = require('sync-request');
 module.exports = {
 
   //Return perf object containing a query wins and losses based on criteria of days ago or current season
-  getQueryPerformance: function(options, checkDate, season) {
-    var perf = {
-      wins: 0,
-      losses: 0,
-      pushes: 0,
-      winPercent: null
-    };
+  getQueryPerformance: function(query, betType, checkDate, season) {
+    var wins = 0
+    var losses = 0;
+    var pushes = 0;
+    var winPercent = null;
+
     if (checkDate !== null) {
-      var url = buildCheckQueryRequestUrl(options.theQuery, checkDate, null);
-      // console.log("Generated checkUrl: " + url);
-      var requestOptions = {
-        retry: true,
-        retryDelay: 7000,
-        maxRetries: 15
-      }
-      var checkJsonResults = this.stripJsonCallbackWrapper(syncRequest("GET", url, requestOptions).body.toString());
-      // console.log("Check RESULTS: " + JSON.stringify(checkJsonResults));
-      // Look for the team and add it to the teams object
-      var pointsForArray = checkJsonResults.groups[0].columns[0];
-      var pointsAgainstArray = checkJsonResults.groups[0].columns[1];
-      var linesArray = checkJsonResults.groups[0].columns[2];
-      var totalsArray = checkJsonResults.groups[0].columns[3];
-      // console.log(qNum + ". Query found teams to bet: " + teamsArray + " " + options.theQuery);
-      for (var j = 0; j < pointsForArray.length; j++) {
-        var margin = pointsForArray[j] - pointsAgainstArray[j];
-        var line = linesArray[j];
-        var finalTotal = pointsForArray[j] + pointsAgainstArray[j];
-        if (pointsForArray[j] !== null && linesArray[j] !== null) {
-          if (options.betType === 'A') {
-            if (margin + line > 0) {
-              perf.wins++;
-            } else if (margin + line < 0) {
-              perf.losses++;
-            } else {
-              perf.pushes++;
-            }
-          }
-          if (options.betType === 'O' && totalsArray[j] !== null) {
-            if (finalTotal > totalsArray[j]) {
-              perf.wins++;
-            } else if (finalTotal < totalsArray[j]) {
-              perf.losses++;
-            } else {
-              perf.pushes++;
-            }
-          }
-          if (options.betType === 'U' && totalsArray[j] !== null) {
-            if (finalTotal < totalsArray[j]) {
-              perf.wins++;
-            } else if (finalTotal > totalsArray[j]) {
-              perf.losses++;
-            } else {
-              perf.pushes++;
-            }
-          }
-        }
-
-      }
-      perf.winPercent = (perf.wins / (perf.wins + perf.losses)) * 100;
-      // console.log(options.queryNumber + ". Performance: " + Number(perf.winPercent).toFixed(1) + "% (" + perf.wins + "-" + perf.losses + "-" + perf.pushes + ")");
-
+      var url = buildCheckQueryRequestUrl(query, checkDate, null);
     } else if (season !== null) {
       console.log("!!!Season check son");
       //TODO: Figure out how to get season variable
       var url = buildCheckQueryRequestUrl(query, null, season);
     }
-    return perf;
+    // console.log("Generated checkUrl: " + url);
+    var requestOptions = {
+      retry: true,
+      retryDelay: 7000,
+      maxRetries: 15
+    }
+    var checkJsonResults = this.stripJsonCallbackWrapper(syncRequest("GET", url, requestOptions).body.toString());
+    // console.log("Check RESULTS: " + JSON.stringify(checkJsonResults));
+    // Look for the team and add it to the teams object
+    var pointsForArray = checkJsonResults.groups[0].columns[0];
+    var pointsAgainstArray = checkJsonResults.groups[0].columns[1];
+    var linesArray = checkJsonResults.groups[0].columns[2];
+    var totalsArray = checkJsonResults.groups[0].columns[3];
+    for (var j = 0; j < pointsForArray.length; j++) {
+      var margin = pointsForArray[j] - pointsAgainstArray[j];
+      var line = linesArray[j];
+      var finalTotal = pointsForArray[j] + pointsAgainstArray[j];
+      if (pointsForArray[j] !== null && linesArray[j] !== null) {
+        if (betType === 'A') {
+          if (margin + line > 0) {
+            wins++;
+          } else if (margin + line < 0) {
+            losses++;
+          } else {
+            pushes++;
+          }
+        }
+        if (betType === 'O' && totalsArray[j] !== null) {
+          if (finalTotal > totalsArray[j]) {
+            wins++;
+          } else if (finalTotal < totalsArray[j]) {
+            losses++;
+          } else {
+            pushes++;
+          }
+        }
+        if (betType === 'U' && totalsArray[j] !== null) {
+          if (finalTotal < totalsArray[j]) {
+            wins++;
+          } else if (finalTotal > totalsArray[j]) {
+            losses++;
+          } else {
+            pushes++;
+          }
+        }
+      }
+
+    }
+    winPercent = (wins / (wins + losses)) * 100;
+    perfString = Number(winPercent).toFixed(1) + "% (" + wins + "-" + losses + "-" + pushes + ")"
+    return perfString;
   },
 
 

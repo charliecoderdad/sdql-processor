@@ -1,3 +1,4 @@
 U|http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3E%3D3+and+tS(margin%2CN%3D3)%3C%3D13+and+p%3AH+and+not+HD
 U|http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+tA(margin%2CN%3D4)%3C%3D-16+and+op%3AH+and+D+and+season%3E%3D2013
-A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+tA(margin%2CN%3D4)%3C%3D-16+and+op%3AA+and+D+and+season%3E%3D2013
+A|and something here|http://sportsdatabase.com/ncaabb/query?output=default&sdql=streak%3C%3D-4+and+tA(margin%2CN%3D4)%3C%3D-16+and+op%3AA+and+D+and+season%3E%3D2013
+A|something else|http://sportsdatabase.com/ncaabb/query?output=default&sdql=season%3D2018+and+team%3DCOPST
