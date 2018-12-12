@@ -18,13 +18,12 @@ var argv = require('yargs')
 var date = argv.date;
 var teamsToBet = { "picks": [] };
 var myPromises = [];
-var sportBeingAnalyzed = "";
 
 // If no date specified as an option then set it to todays date
 if (date === undefined) { date = helper.getTodaysDate(); }
 console.log("Running queries for date: " + date);
 if (argv.checkFromdaysAgo && argv.checkSeason) {
-  console.log("Cannot check query performance for both 'days ago' and 'currnet season'");
+  console.log("Cannot check query performance for both 'days ago' and 'current season'");
   process.exit(1);
 }
 if (argv.checkFromdaysAgo !== null) {
@@ -42,6 +41,10 @@ var originalUrls = fs.readFileSync(argv.file).toString().split("\n");
 if (originalUrls[originalUrls.length-1].length === 0) {
   originalUrls.pop();
 }
+
+var temp = originalUrls[0].split('|');
+var sportBeingAnalyzed = getSportBeingAnalysed(temp[temp.length-1]);
+console.log("SBA: " + sportBeingAnalyzed);
 
 for (var i = 0; i < originalUrls.length; i++) {
   var queryOptionsArray = originalUrls[i].split('|');
@@ -328,4 +331,14 @@ function printTeamsToBet(teamsToBet) {
     console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
     console.log();
   }
+}
+
+function getSportBeingAnalysed(queryString) {
+  if (queryString.toLowerCase().includes("nba/query")) { return "NBA"; }
+  if (queryString.toLowerCase().includes('ncaabb/query')) { return "College Hoops"; }
+  if (queryString.toLowerCase().includes('ncaafb/query')) { return "College Football"; }
+  if (queryString.toLowerCase().includes('nfl/query')) { return "NFL"; }
+  if (queryString.toLowerCase().includes('mlb/query')) { return "MLB"; }
+  if (queryString.toLowerCase().includes('nhl/query')) { return "NHL"; }
+  return "SPORT NOT DETECTED"
 }
