@@ -187,6 +187,9 @@ function buildRequestUrl(origUrl) {
     if (origUrl.toLowerCase().includes('nfl/query')) {
       sport = "nfl";
     }
+    if (origUrl.toLowerCase().includes('nhl/query')) {
+      sport = "nhl";
+    }
 
     var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
     returnUrl+=query;
