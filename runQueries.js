@@ -1,14 +1,18 @@
-var request = require('request');
+// var request = require('request');
+var helper = require('./runQueriesHelper.js');
+var syncRequest = require('sync-request');
 var fs = require('fs');
 var sleep = require('sleep-promise');
 var nodemailer = require('nodemailer');
 var argv = require('yargs')
     .usage('Usage: node $0 [options]')
-    .option('file', { alias: 'f', describe: 'File that contains the original queries', default: 'ncaabb-all.qry'})
+    .option('file', { alias: 'f', describe: 'File that contains the original queries', demand: true })
     .option('date', { alias: 'd', describe: 'Date that query should look to find teams (Format: YYYYMMDD)'})
     .option('delay', { alias: 's', describe: 'Delay between each REST api call in ms', default: 2500 })
     .option('mail', { alias: 'm', describe: 'Send email of picks to specified email address', default: null})
-    .help('--help')
+    .option('checkFromdaysAgo', { alias: 'n', describe: 'How many days since to check queries results', default: null})
+    .option('checkSeason', { alias: 'c', describe: 'Check queries performance for the current season', type: 'boolean', default: 'false'})
+    .help()
     .argv;
 
 var date = argv.date;
@@ -17,7 +21,20 @@ var myPromises = [];
 var sportBeingAnalyzed = "";
 
 // If no date specified as an option then set it to todays date
-if (date === undefined) { date = getTodaysDate(); }
+if (date === undefined) { date = helper.getTodaysDate(); }
+console.log("Running queries for date: " + date);
+if (argv.checkFromdaysAgo && argv.checkSeason) {
+  console.log("Cannot check query performance for both 'days ago' and 'currnet season'");
+  process.exit(1);
+}
+if (argv.checkFromdaysAgo !== null) {
+  var checkDate = helper.getDateNDaysAgo(argv.checkFromdaysAgo);
+  console.log("Checking query performance for past " + argv.checkFromdaysAgo + " days (" + checkDate + ")");
+}
+if (argv.checkSeason) {
+  console.log("Checking query performance for this season");
+}
+console.log();
 
 // Code to read queries from file and store the URLs into an array
 var originalUrls = fs.readFileSync(argv.file).toString().split("\n");
@@ -27,183 +44,117 @@ if (originalUrls[originalUrls.length-1].length === 0) {
 }
 
 for (var i = 0; i < originalUrls.length; i++) {
+  var queryOptionsArray = originalUrls[i].split('|');
+  var options = {
+    queryNumber: i + 1,
+    theQuery: null,
+    queryWins: null,
+    queryLosses: null,
+    betType: queryOptionsArray[0],
+    url: null,
+    comments: null,
+    retry: true,
+    retryDelay: 7000,
+    maxRetries: 15
+  };
 
-  var promise = new Promise(function(resolve, reject) {
+  // We have optional comments in the query file.. if we have a comment we need to handle differently
+  if (queryOptionsArray.length === 3) {
+    options.theQuery = queryOptionsArray[2];
+    options.url = helper.buildQueryMatchRequestUrl(queryOptionsArray[2], date);
+    options.comments = queryOptionsArray[1];
+  } else {
+    options.theQuery = queryOptionsArray[1];
+    options.url = helper.buildQueryMatchRequestUrl(queryOptionsArray[1], date);
+  }
 
-    var betString = originalUrls[i].split('|');
+  var res = syncRequest("GET", options.url, options);
 
+  if (res.statusCode !== 200) {
+    console.log("Error Status code " + res.statusCode + " when making the request.");
+    process.exit(1);
+  }
 
-    var options = {
-      queryNumber: i,
-      theQuery: null,
-      url: null,
-      port: 80,
-      comments: null,
-      method: 'GET'
-    };
+  if (res.body.html) {
+    console.log("Problem found retrieving the JSON results from the query");
+    console.log(options.queryNumber + ". WARNING: Problem found with this query: " + options.theQuery);
+  }
 
-    // We have optional comments in the query file.. if we have a comment we need to handle differently
-    if (betString.length === 3) {
-      options.theQuery = betString[2];
-      options.url = buildRequestUrl(betString[2], date);
-      options.comments = betString[1];
-    } else {
-      options.theQuery = betString[1];
-      options.url = buildRequestUrl(betString[1], date);
+  if (!res.body.includes("json_callback(null)")) {
+    //Found games that match the query.  We need to process here.
+
+    //Are we checking historical record of query? If so we do it here!
+    if (checkDate) {
+      var queryResults = helper.getQueryPerformance(options, checkDate, null);
     }
 
-    // console.log("URL: " + options.url);
-    // console.log("Comments: "+ options.comments);
+    var jsonResponse = helper.stripJsonCallbackWrapper(res.body.toString());
+    // console.log(options.queryNumber + ". JSON: " + JSON.stringify(jsonResponse));
+    var teamsArray = jsonResponse.groups[0].columns[0];
+    var linesArray = jsonResponse.groups[0].columns[1];
+    var opponentsArray = jsonResponse.groups[0].columns[2];
+    var totalsArray = jsonResponse.groups[0].columns[3];
+    console.log(options.queryNumber + ". Query found a bet to make: " + teamsArray);
+    if (queryResults) {
+      console.log("   - Query #" + options.queryNumber + " performance: " + Number(queryResults.winPercent).toFixed(1) + "% (" + queryResults.wins + "-" + queryResults.losses + "-" + queryResults.pushes + ")");
+    }
+    for (var j = 0; j < teamsArray.length; j++) {
+      var picksEntry = {
+        "team": teamsArray[j],
+        "betType": queryOptionsArray[0],
+        "line": linesArray[j],
+        "total": totalsArray[j],
+        "opponent": opponentsArray[j],
+        "hits": 1,
+        "matchedQuery": [options.queryNumber],
+        "queryComments": [options.comments],
+        "queryURL": [options.theQuery]
+      }
 
-    sleep(i * argv.delay).then(function() {
-      request(options, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var jsonResponse = response.body;
-          var qNum = options.queryNumber + 1;
-
-          // If no records found from query then quit and resolve this promise
-          if (jsonResponse.indexOf("json_callback(null)") > -1) {
-            console.log(qNum + ". No matches");
-            resolve("No records found");
-            return;
-          }
-
-          // A match was found.  Convert repsonse to JSON
-          jsonResponse = jsonResponse.substr(jsonResponse.indexOf("{"), jsonResponse.length);
-          jsonResponse = jsonResponse.substr(0, jsonResponse.lastIndexOf("}") + 1);
-          jsonResponse = jsonResponse.replace(new RegExp("\'", 'g'), "\"");
-          jsonResponse = JSON.parse(jsonResponse);
-          // End conversion of response to JSON
-
-          if (jsonResponse.html) {
-            console.log("Problem found retrieving the JSON results from the query");
-            console.log(qNum + ". WARNING: Problem found with this query: " +options.theQuery);
-            resolve("No records found");
-            return;
-          }
-
-          // Look for the team and add it to the teams object
-          // console.log("JSON Results: " + JSON.stringify(jsonResponse,0,3));
-          var teamsArray = jsonResponse.groups[0].columns[0];
-          var linesArray = jsonResponse.groups[0].columns[1];
-          var opponentsArray = jsonResponse.groups[0].columns[2];
-          var totalsArray = jsonResponse.groups[0].columns[3];
-          console.log(qNum + ". Query found a bet to make: " + teamsArray + " " + options.theQuery);
-          for (var j = 0; j < teamsArray.length; j++) {
-            var picksEntry = {
-              "team": teamsArray[j],
-              "betType": betString[0],
-              "line": linesArray[j],
-              "total": totalsArray[j],
-              "opponent": opponentsArray[j],
-              "hits": 1,
-              "matchedQuery": [qNum],
-              "queryComments": [options.comments],
-              "queryURL": [options.theQuery]
+      // Check if team already in array, if so add to hit, otherwise add new picks entry
+      var foundExistingPick = false;
+      for (var x = 0; x < teamsToBet.picks.length; x++) {
+        // If over/under then check for duplicates differently
+        if (picksEntry.betType === 'U' || picksEntry.betType === 'O') {
+          if (teamsToBet.picks[x].betType === picksEntry.betType) {
+            if (teamsToBet.picks[x].team.toUpperCase() === picksEntry.team.toUpperCase() || teamsToBet.picks[x].team.toUpperCase() === picksEntry.opponent.toUpperCase()) {
+              teamsToBet.picks[x].hits++;
+              teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+              teamsToBet.picks[x].queryURL.push(options.theQuery);
+              foundExistingPick = true;
             }
-
-            // Check if team already in array, if so add to hit, otherwise add new picks entry
-            var foundExistingPick = false;
-            for (var x = 0; x < teamsToBet.picks.length; x++) {
-              // If over/under then check for duplicates differently
-              if (picksEntry.betType==='U' || picksEntry.betType==='O') {
-                if (teamsToBet.picks[x].betType===picksEntry.betType) {
-                  if (teamsToBet.picks[x].team.toUpperCase()===picksEntry.team.toUpperCase() || teamsToBet.picks[x].team.toUpperCase()===picksEntry.opponent.toUpperCase()) {
-                    teamsToBet.picks[x].hits++;
-                    teamsToBet.picks[x].matchedQuery.push(qNum);
-                    teamsToBet.picks[x].queryURL.push(options.theQuery);
-                    foundExistingPick = true;
-                  }
-                }
-              } else {
-                // If ATS or monelyine bet check for duplicates
-                if (teamsToBet.picks[x].team === picksEntry.team && teamsToBet.picks[x].betType === betString[0]) {
-                  teamsToBet.picks[x].hits++;
-                  teamsToBet.picks[x].matchedQuery.push(qNum);
-                  teamsToBet.picks[x].queryURL.push(options.theQuery);
-                  foundExistingPick = true;
-                }
-              }
-
-            }
-            if (!foundExistingPick) {
-              teamsToBet.picks.push(picksEntry);
-            }
-
           }
-          // End counting the pick to the teamsToAdd
-
-          resolve("pass");
         } else {
-          console.log(qNum + ". ERROR running the GET: " + options.url);
-          resolve("Error found: " + error);
+          // If ATS or monelyine bet check for duplicates
+          if (teamsToBet.picks[x].team === picksEntry.team && teamsToBet.picks[x].betType === queryOptionsArray[0]) {
+            teamsToBet.picks[x].hits++;
+            teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+            teamsToBet.picks[x].queryURL.push(options.theQuery);
+            foundExistingPick = true;
+          }
         }
-      });
-    });
-  });
-  myPromises.push(promise);
 
-} //end loop to create array of promises
+      }
+      if (!foundExistingPick) {
+        teamsToBet.picks.push(picksEntry);
+      }
+    }
+  } else {
+    //No matches found for query
+    console.log(options.queryNumber + ". No matches found.");
+  }
 
-// After promises have been added to the array execute steps afterwards
-Promise.all(myPromises).then(function(results){
-    console.log("");
-    printTeamsToBet(teamsToBet);
-    if (argv.mail != null) {
-        emailTeamsToBet(teamsToBet);
-    }
-});
 
-// Converts original SDQL http URL into the API url that returns JSON
-function buildRequestUrl(origUrl, date) {
-    origUrl = origUrl.toString().trim();
-    var query = origUrl.substr(origUrl.indexOf("sdql=")+5, origUrl.length);
-    // console.log("Original URL: " + origUrl);
-    // console.log("query found: |" + query + "|");
-    var sport = null;
-    if (origUrl.toLowerCase().includes("nba/query")) {
-      sport = "nba";
-      sportBeingAnalyzed = "NBA";
-    }
-    if (origUrl.toLowerCase().includes('ncaabb/query')) {
-      sport = "ncaabb";
-      sportBeingAnalyzed = "College Hoops";
-    }
-    if (origUrl.toLowerCase().includes('ncaafb/query')) {
-      sport = "ncaafb";
-      sportBeingAnalyzed = "College Football";
-    }
-    if (origUrl.toLowerCase().includes('nfl/query')) {
-      sportBeingAnalyzed = "NFL";
-      sport = "nfl";
-    }
-    if (origUrl.toLowerCase().includes('mlb/query')) {
-      sportBeingAnalyzed = "MLB";
-      sport = "mlb";
-    }
-    if (origUrl.toLowerCase().includes('nhl/query')) {
-      sportBeingAnalyzed = "NHL";
-      sport = "nhl";
-    }
+} //end of for loop iterating through each query
 
-    var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
-    returnUrl += query.toString();
-    returnUrl += "+and+date%3D" + date;
-    returnUrl += "&output=json&api_key=guest";
-    return returnUrl;
+
+console.log("");
+printTeamsToBet(teamsToBet);
+if (argv.mail != null) {
+  emailTeamsToBet(teamsToBet);
 }
 
-// Build todays date and returns it formatted as YYYYMMDD
-function getTodaysDate() {
-    var date = new Date();
-    var yyyymmdd = date.getFullYear().toString();
-    var month = date.getMonth()+1;
-    var day = date.getDate();
-    if (month < 10) { month = '0' + month; }
-    if (day < 10) { day = '0' + day; }
-    yyyymmdd += month.toString() + day.toString();
-    return yyyymmdd;
-}
+
 
 function emailTeamsToBet(teamsToBet) {
     console.log("Sending email to: " + argv.mail);
@@ -310,8 +261,10 @@ function getStarsString(num) {
 
 // Prints out teams to bet in descending order by how many times found by queries
 function printTeamsToBet(teamsToBet) {
-  console.log("Games to Bet");
-  console.log("============");
+  console.log("  /==============\\");
+  console.log("  | Games to Bet |");
+  console.log("  \\==============/");
+  console.log();
   //FOR LOOP TO CHECK FOR COLLISIONS BASED ON BET TYPE
   for (var i = 0; i < teamsToBet.picks.length; i++) {
     var pick1betType = teamsToBet.picks[i].betType.toUpperCase();
