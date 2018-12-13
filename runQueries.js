@@ -69,6 +69,7 @@ for (var i = 0; i < originalUrls.length; i++) {
     options.url = helper.buildQueryMatchRequestUrl(queryOptionsArray[1], date);
   }
 
+  // console.log("DEBUG: " + options.url);
   var res = syncRequest("GET", options.url, options);
 
   if (res.statusCode !== 200) {

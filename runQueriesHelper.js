@@ -44,7 +44,7 @@ module.exports = {
             }
             if (pointsForArray[j] < pointsAgainstArray[j]) {
               losses++;
-            }            
+            }
           } else {
             if (margin + line > 0) {
               wins++;
@@ -142,7 +142,6 @@ module.exports = {
       var query = origUrl.substr(origUrl.indexOf("sdql=")+5, origUrl.length);
       // console.log("Original URL: " + origUrl);
       // console.log("query found: |" + query + "|");
-      var sport = null;
       if (origUrl.toLowerCase().includes("nba/query")) {
         sport = "nba";
       }
@@ -153,7 +152,7 @@ module.exports = {
         sport = "ncaafb";
       }
       if (origUrl.toLowerCase().includes('nfl/query')) {
-        sportBeingAnalyzed = "NFL";
+        sport = "nfl";
       }
       if (origUrl.toLowerCase().includes('mlb/query')) {
         sport = "mlb";
@@ -177,29 +176,29 @@ module.exports = {
 function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
   origUrl = origUrl.toString().trim();
   var query = origUrl.substr(origUrl.indexOf("sdql=") + 5, origUrl.length);
-  var sport = null;
+  var mySport = null;
   if (origUrl.toLowerCase().includes("nba/query")) {
-    sport = "nba";
+    mySport = "nba";
   }
   if (origUrl.toLowerCase().includes('ncaabb/query')) {
-    sport = "ncaabb";
+    mySport = "ncaabb";
   }
   if (origUrl.toLowerCase().includes('ncaafb/query')) {
-    sport = "ncaafb";
+    mySport = "ncaafb";
   }
   if (origUrl.toLowerCase().includes('nfl/query')) {
-    sport = "nfl";
+    mySport = "nfl";
   }
   if (origUrl.toLowerCase().includes('nhl/query')) {
-    sport = "nhl";
+    mySport = "nhl";
   }
 
-  if (sport === "nhl") {
-    var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
-  } else if (sport === "mlb") {
+  if (mySport === "nhl") {
+    var returnUrl = " http://api.sportsdatabase.com/" + mySport + "/query.json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
+  } else if (mySport === "mlb") {
     // probably need to use runs instead of goals/points
   } else {
-    var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
+    var returnUrl = " http://api.sportsdatabase.com/" + mySport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
   }
 
   returnUrl += query;
@@ -211,6 +210,6 @@ function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
     returnUrl += "+and+date>%3D" + checkDate;
   }
   returnUrl += "&output=json&api_key=guest";
-  console.log("Check Query API URL: " + returnUrl);
+  // console.log("Check Query API URL: " + returnUrl);
   return returnUrl;
 }
