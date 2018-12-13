@@ -1,2 +1,2 @@
-A|http://sportsdatabase.com/nhl/query?output=default&sdql=A+and+op%3Astreak%3E%3D3+and+op%3AAL+and+season%3E%3D2014
-U|http://sportsdatabase.com/nhl/query?output=default&sdql=H+and+tA(penalty+minutes)%3C11.3+and+oA(penalty+minutes)%3C11.3+and+total%3E5+and+tA(shots+on+goal)%2BotA(shots+on+goal)%3C58.8+and+season%3E%3D2014
+A|http://sportsdatabase.com/nfl/query?output=default&sdql=team%3DChiefs+and+season%3D2018+and+month%3D12
+A|http://sportsdatabase.com/nfl/query?output=default&sdql=day%3DThursday+and+HF

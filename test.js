@@ -1,5 +1,5 @@
-var helper = require('./runQueriesHelper.js');
+var query = "http://sportsdatabase.com/nfl/query?output=default&sdql=day%3DThursday+and+HF"
 
-n = 5;
+var match = query.match(/\/\w*\/query/)
 
-console.log(n + " days ago was: " + helper.getDateNDaysAgo(n));
+console.log("New Query: " + match);

@@ -7,10 +7,13 @@ module.exports = {
 
   //Return perf object containing a query wins and losses based on criteria of days ago or current season
   getQueryPerformance: function(query, betType, checkDate, season) {
-    var wins = 0
-    var losses = 0;
-    var pushes = 0;
-    var winPercent = null;
+    var perf = {
+      wins: 0,
+      losses: 0,
+      pushes: 0,
+      winPercent: null,
+      perfString: null
+    }
 
     if (checkDate !== null) {
       var url = buildCheckQueryRequestUrl(query, checkDate, null);
@@ -40,46 +43,46 @@ module.exports = {
         if (betType === 'A') {
           if (sport.toLowerCase() === "nhl") {
             if (pointsForArray[j] > pointsAgainstArray[j]) {
-              wins++;
+              perf.wins++;
             }
             if (pointsForArray[j] < pointsAgainstArray[j]) {
-              losses++;
+              perf.losses++;
             }
           } else {
             if (margin + line > 0) {
-              wins++;
+              perf.wins++;
             } else if (margin + line < 0) {
-              losses++;
+              perf.losses++;
             } else {
-              pushes++;
+              perf.pushes++;
             }
           }
 
         }
         if (betType === 'O' && totalsArray[j] !== null) {
           if (finalTotal > totalsArray[j]) {
-            wins++;
+            perf.wins++;
           } else if (finalTotal < totalsArray[j]) {
-            losses++;
+            perf.losses++;
           } else {
-            pushes++;
+            perf.pushes++;
           }
         }
         if (betType === 'U' && totalsArray[j] !== null) {
           if (finalTotal < totalsArray[j]) {
-            wins++;
+            perf.wins++;
           } else if (finalTotal > totalsArray[j]) {
-            losses++;
+            perf.losses++;
           } else {
-            pushes++;
+            perf.pushes++;
           }
         }
       }
 
     }
-    winPercent = (wins / (wins + losses)) * 100;
-    perfString = Number(winPercent).toFixed(1) + "% (" + wins + "-" + losses + "-" + pushes + ")"
-    return perfString;
+    perf.winPercent = (perf.wins / (perf.wins + perf.losses)) * 100;
+    perf.perfString = Number(perf.winPercent).toFixed(1) + "% (" + perf.wins + "-" + perf.losses + "-" + perf.pushes + ")"
+    return perf;
   },
 
 
@@ -140,29 +143,9 @@ module.exports = {
   buildQueryMatchRequestUrl: function(origUrl, date) {
       origUrl = origUrl.toString().trim();
       var query = origUrl.substr(origUrl.indexOf("sdql=")+5, origUrl.length);
-      // console.log("Original URL: " + origUrl);
-      // console.log("query found: |" + query + "|");
-      if (origUrl.toLowerCase().includes("nba/query")) {
-        sport = "nba";
-      }
-      if (origUrl.toLowerCase().includes('ncaabb/query')) {
-        sport = "ncaabb";
-      }
-      if (origUrl.toLowerCase().includes('ncaafb/query')) {
-        sport = "ncaafb";
-      }
-      if (origUrl.toLowerCase().includes('nfl/query')) {
-        sport = "nfl";
-      }
-      if (origUrl.toLowerCase().includes('mlb/query')) {
-        sport = "mlb";
-      }
-      if (origUrl.toLowerCase().includes('nhl/query')) {
-        sport = "nhl";
-      }
-
-      var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
-
+      // var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
+      var mySport = origUrl.match(/\/\w*\/query/); // gives something like '/nfl/query'
+      var returnUrl = "http://api.sportsdatabase.com" + mySport + ".json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
       returnUrl += query.toString();
       returnUrl += "+and+date%3D" + date;
       returnUrl += "&output=json&api_key=guest";
@@ -175,34 +158,17 @@ module.exports = {
 // Converts original SDQL http URL into the API url that returns JSON
 function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
   origUrl = origUrl.toString().trim();
+  var mySport = origUrl.match(/\/\w*\/query/); // gives something like '/nfl/query'
   var query = origUrl.substr(origUrl.indexOf("sdql=") + 5, origUrl.length);
-  var mySport = null;
-  if (origUrl.toLowerCase().includes("nba/query")) {
-    mySport = "nba";
-  }
-  if (origUrl.toLowerCase().includes('ncaabb/query')) {
-    mySport = "ncaabb";
-  }
-  if (origUrl.toLowerCase().includes('ncaafb/query')) {
-    mySport = "ncaafb";
-  }
-  if (origUrl.toLowerCase().includes('nfl/query')) {
-    mySport = "nfl";
-  }
-  if (origUrl.toLowerCase().includes('nhl/query')) {
-    mySport = "nhl";
-  }
-
   if (mySport === "nhl") {
-    var returnUrl = " http://api.sportsdatabase.com/" + mySport + "/query.json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
+    var returnUrl = " http://api.sportsdatabase.com" + mySport + ".json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
   } else if (mySport === "mlb") {
     // probably need to use runs instead of goals/points
   } else {
-    var returnUrl = " http://api.sportsdatabase.com/" + mySport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
+    // var returnUrl = " http://api.sportsdatabase.com/" + mySport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
+    var returnUrl = " http://api.sportsdatabase.com" + mySport + ".json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
   }
-
   returnUrl += query;
-
   if (season !== null) {
     returnUrl += "+and+season%3D" + season;
   }
