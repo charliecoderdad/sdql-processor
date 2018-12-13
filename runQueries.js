@@ -1,10 +1,8 @@
-// var request = require('request');
 var helper = require('./helperModules/runQueriesHelper.js');
 var displayResults = require('./helperModules/displayResults.js');
 var syncRequest = require('sync-request');
 var fs = require('fs');
 var sleep = require('sleep-promise');
-var nodemailer = require('nodemailer');
 var argv = require('yargs')
     .usage('Usage: node $0 [options]')
     .option('file', { alias: 'f', describe: 'File that contains the original queries', demand: true })
@@ -43,8 +41,7 @@ if (originalUrls[originalUrls.length-1].length === 0) {
   originalUrls.pop();
 }
 
-var temp = originalUrls[0].split('|');
-var sportBeingAnalyzed = helper.getSportBeingAnalysed(temp[temp.length-1]);
+var sportBeingAnalyzed = helper.getSportBeingAnalysed(originalUrls[0]);
 
 for (var i = 0; i < originalUrls.length; i++) {
   var queryOptionsArray = originalUrls[i].split('|');
@@ -114,9 +111,7 @@ for (var i = 0; i < originalUrls.length; i++) {
         "queryURL": [options.theQuery]
       }
       if (queryResults) {
-        var displayString = "#" + options.queryNumber + " " + Number(queryResults.winPercent).toFixed(1) + "%" + " (" + queryResults.wins + "-" + queryResults.losses + "-" + queryResults.pushes + ")";
-        // console.log("DEBUG: " + displayString);
-        picksEntry.matchedQuery = [displayString];
+        picksEntry.matchedQuery = ["#" + options.queryNumber];
         picksEntry.queryResults = [queryResults];
       }
       if (options.comments !== null) {
@@ -132,10 +127,10 @@ for (var i = 0; i < originalUrls.length; i++) {
             if (teamsToBet.picks[x].team.toUpperCase() === picksEntry.team.toUpperCase() || teamsToBet.picks[x].team.toUpperCase() === picksEntry.opponent.toUpperCase()) {
               teamsToBet.picks[x].hits++;
               if (queryResults) {
-                teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber + " " + queryResults.perfString);
+                teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber);
                 teamsToBet.picks[x].queryResults.push(queryResults);
               } else {
-                teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+                teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber);
               }
               if (options.comments !== null) {
                 teamsToBet.picks[x].queryComments.push("#" + options.queryNumber + " " + options.comments);
@@ -149,10 +144,10 @@ for (var i = 0; i < originalUrls.length; i++) {
           if (teamsToBet.picks[x].team === picksEntry.team && teamsToBet.picks[x].betType === queryOptionsArray[0]) {
             teamsToBet.picks[x].hits++;
             if (queryResults) {
-              teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber + " " + queryResults.perfString);
+              teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber);
               teamsToBet.picks[x].queryResults.push(queryResults);
             } else {
-              teamsToBet.picks[x].matchedQuery.push(options.queryNumber);
+              teamsToBet.picks[x].matchedQuery.push("#" + options.queryNumber);
             }
             if (options.comments !== null) {
               teamsToBet.picks[x].queryComments.push("#" + options.queryNumber + " " + options.comments);
@@ -179,5 +174,11 @@ for (var i = 0; i < originalUrls.length; i++) {
 console.log("");
 displayResults.printTeamsToBet(teamsToBet);
 if (argv.mail != null) {
-  displayResults.emailTeamsToBet(teamsToBet);
+  var properties = {
+    sportBeingAnalyzed: sportBeingAnalyzed,
+    emailAddress: argv.mail,
+    checkDate: checkDate,
+    checkFromdaysAgo: argv.checkFromdaysAgo
+  }
+  displayResults.emailTeamsToBet(teamsToBet, properties);
 }
