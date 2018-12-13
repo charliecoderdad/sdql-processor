@@ -136,7 +136,7 @@ module.exports = {
           body += "<td>" + teamsToBet.picks[i].queryResults[j].perfString + "</td>";
           body += "<td>";
           if (teamsToBet.picks[i].queryComments[j] && teamsToBet.picks[i].queryComments.toString().length > 0) {
-            body += "Query notes: " + teamsToBet.picks[i].queryComments[j];
+            body += teamsToBet.picks[i].queryComments[j];
           } else {
             body += "No query notes."
           }
