@@ -43,8 +43,7 @@ if (originalUrls[originalUrls.length-1].length === 0) {
 }
 
 var temp = originalUrls[0].split('|');
-var sportBeingAnalyzed = getSportBeingAnalysed(temp[temp.length-1]);
-console.log("SBA: " + sportBeingAnalyzed);
+var sportBeingAnalyzed = helper.getSportBeingAnalysed(temp[temp.length-1]);
 
 for (var i = 0; i < originalUrls.length; i++) {
   var queryOptionsArray = originalUrls[i].split('|');
@@ -331,14 +330,4 @@ function printTeamsToBet(teamsToBet) {
     console.log("Matched queries: " + teamsToBet.picks[i].matchedQuery);
     console.log();
   }
-}
-
-function getSportBeingAnalysed(queryString) {
-  if (queryString.toLowerCase().includes("nba/query")) { return "NBA"; }
-  if (queryString.toLowerCase().includes('ncaabb/query')) { return "College Hoops"; }
-  if (queryString.toLowerCase().includes('ncaafb/query')) { return "College Football"; }
-  if (queryString.toLowerCase().includes('nfl/query')) { return "NFL"; }
-  if (queryString.toLowerCase().includes('mlb/query')) { return "MLB"; }
-  if (queryString.toLowerCase().includes('nhl/query')) { return "NHL"; }
-  return "SPORT NOT DETECTED"
 }

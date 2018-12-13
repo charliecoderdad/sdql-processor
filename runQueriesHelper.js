@@ -1,6 +1,9 @@
 var syncRequest = require('sync-request');
+var sport = null;
 
 module.exports = {
+
+
 
   //Return perf object containing a query wins and losses based on criteria of days ago or current season
   getQueryPerformance: function(query, betType, checkDate, season) {
@@ -16,14 +19,13 @@ module.exports = {
       //TODO: Figure out how to get season variable
       var url = buildCheckQueryRequestUrl(query, null, season);
     }
-    // console.log("Generated checkUrl: " + url);
     var requestOptions = {
       retry: true,
       retryDelay: 7000,
       maxRetries: 15
     }
     var checkJsonResults = this.stripJsonCallbackWrapper(syncRequest("GET", url, requestOptions).body.toString());
-    // console.log("Check RESULTS: " + JSON.stringify(checkJsonResults));
+    // console.log("Check RESULTS: " + JSON.stringify(checkJsonResults,0,2));
     // Look for the team and add it to the teams object
     var pointsForArray = checkJsonResults.groups[0].columns[0];
     var pointsAgainstArray = checkJsonResults.groups[0].columns[1];
@@ -34,14 +36,25 @@ module.exports = {
       var line = linesArray[j];
       var finalTotal = pointsForArray[j] + pointsAgainstArray[j];
       if (pointsForArray[j] !== null && linesArray[j] !== null) {
+
         if (betType === 'A') {
-          if (margin + line > 0) {
-            wins++;
-          } else if (margin + line < 0) {
-            losses++;
+          if (sport.toLowerCase() === "nhl") {
+            if (pointsForArray[j] > pointsAgainstArray[j]) {
+              wins++;
+            }
+            if (pointsForArray[j] < pointsAgainstArray[j]) {
+              losses++;
+            }            
           } else {
-            pushes++;
+            if (margin + line > 0) {
+              wins++;
+            } else if (margin + line < 0) {
+              losses++;
+            } else {
+              pushes++;
+            }
           }
+
         }
         if (betType === 'O' && totalsArray[j] !== null) {
           if (finalTotal > totalsArray[j]) {
@@ -91,6 +104,18 @@ module.exports = {
     return returnDate;
   },
 
+  getSportBeingAnalysed: function(queryString) {
+    var mySport = "NO SPORT DETECTED";
+    if (queryString.toLowerCase().includes("nba/query")) { mySport = "NBA"; }
+    if (queryString.toLowerCase().includes('ncaabb/query')) { mySport = "College Hoops"; }
+    if (queryString.toLowerCase().includes('ncaafb/query')) { mySport = "College Football"; }
+    if (queryString.toLowerCase().includes('nfl/query')) { mySport = "NFL"; }
+    if (queryString.toLowerCase().includes('mlb/query')) { mySport = "MLB"; }
+    if (queryString.toLowerCase().includes('nhl/query')) { mySport = "NHL"; }
+    sport = mySport;
+    return mySport;
+  },
+
   //The SDQL Api returns json but wrapped in a "json_callback()" wrapper which must be removed to use response as true json
   stripJsonCallbackWrapper: function(jsonResponse) {
     jsonResponse = jsonResponse.substr(jsonResponse.indexOf("{"), jsonResponse.length);
@@ -120,33 +145,29 @@ module.exports = {
       var sport = null;
       if (origUrl.toLowerCase().includes("nba/query")) {
         sport = "nba";
-        sportBeingAnalyzed = "NBA";
       }
       if (origUrl.toLowerCase().includes('ncaabb/query')) {
         sport = "ncaabb";
-        sportBeingAnalyzed = "College Hoops";
       }
       if (origUrl.toLowerCase().includes('ncaafb/query')) {
         sport = "ncaafb";
-        sportBeingAnalyzed = "College Football";
       }
       if (origUrl.toLowerCase().includes('nfl/query')) {
         sportBeingAnalyzed = "NFL";
-        sport = "nfl";
       }
       if (origUrl.toLowerCase().includes('mlb/query')) {
-        sportBeingAnalyzed = "MLB";
         sport = "mlb";
       }
       if (origUrl.toLowerCase().includes('nhl/query')) {
-        sportBeingAnalyzed = "NHL";
         sport = "nhl";
       }
 
       var returnUrl = "http://api.sportsdatabase.com/" + sport + "/query.json?sdql=team%2Cline%2Co%3Ateam%2Ctotal%40";
+
       returnUrl += query.toString();
       returnUrl += "+and+date%3D" + date;
       returnUrl += "&output=json&api_key=guest";
+      // console.log("DEBUG: url " + returnUrl);
       return returnUrl;
   }
 
@@ -173,7 +194,14 @@ function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
     sport = "nhl";
   }
 
-  var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
+  if (sport === "nhl") {
+    var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
+  } else if (sport === "mlb") {
+    // probably need to use runs instead of goals/points
+  } else {
+    var returnUrl = " http://api.sportsdatabase.com/" + sport + "/query.json?sdql=points%2Co%3Apoints%2Cline%2Ctotal%40";
+  }
+
   returnUrl += query;
 
   if (season !== null) {
@@ -183,5 +211,6 @@ function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
     returnUrl += "+and+date>%3D" + checkDate;
   }
   returnUrl += "&output=json&api_key=guest";
+  console.log("Check Query API URL: " + returnUrl);
   return returnUrl;
 }
