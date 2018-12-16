@@ -107,7 +107,7 @@ for (var i = 0; i < originalUrls.length; i++) {
         "opponent": opponentsArray[j],
         "hits": 1,
         "matchedQuery": ["#" + options.queryNumber],
-        "queryComments": "",
+        "queryComments": [null],
         "queryURL": [options.theQuery]
       }
       if (queryResults) {
@@ -116,6 +116,8 @@ for (var i = 0; i < originalUrls.length; i++) {
       }
       if (options.comments !== null) {
         picksEntry.queryComments = ["#" + options.queryNumber + " " + options.comments];
+      } else {
+        picksEntry.queryComments.push(null);
       }
 
       // Check if team already in array, if so add to hit, otherwise add new picks entry
@@ -178,7 +180,8 @@ if (argv.mail != null) {
     sportBeingAnalyzed: sportBeingAnalyzed,
     emailAddress: argv.mail,
     checkDate: checkDate,
-    checkFromdaysAgo: argv.checkFromdaysAgo
+    checkFromdaysAgo: argv.checkFromdaysAgo,
+    checkDate: checkDate
   }
   displayResults.emailTeamsToBet(teamsToBet, properties);
 }

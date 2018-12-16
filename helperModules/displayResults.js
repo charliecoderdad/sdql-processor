@@ -77,7 +77,7 @@ module.exports = {
       mySubject = date + ": " + properties.sportBeingAnalyzed + " sdql games found to bet!!!";
       body = "<h1>Games to Bet for " + date + "</h1>";
       if (properties.checkDate) {
-        body += "<h3 style='color:grey'>Query performance based on last " + properties.checkFromdaysAgo + " days</h2>";
+        body += "<h3 style='color:grey'>Query performance based on last " + properties.checkFromdaysAgo + " days (from " + properties.checkDate + ")</h2>";
       }
       for (var i = 0; i < teamsToBet.picks.length; i++) {
         body += "<style>";

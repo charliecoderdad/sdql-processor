@@ -42,6 +42,7 @@ module.exports = {
 
         if (betType === 'A') {
           if (sport.toLowerCase() === "nhl") {
+            // NHL handle differently
             if (pointsForArray[j] > pointsAgainstArray[j]) {
               perf.wins++;
             }
@@ -49,6 +50,7 @@ module.exports = {
               perf.losses++;
             }
           } else {
+            // NOT NHL
             if (margin + line > 0) {
               perf.wins++;
             } else if (margin + line < 0) {
@@ -160,7 +162,7 @@ function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
   origUrl = origUrl.toString().trim();
   var mySport = origUrl.match(/\/\w*\/query/); // gives something like '/nfl/query'
   var query = origUrl.substr(origUrl.indexOf("sdql=") + 5, origUrl.length);
-  if (mySport === "nhl") {
+  if (mySport.toString().toLowerCase().includes("nhl")) {
     var returnUrl = " http://api.sportsdatabase.com" + mySport + ".json?sdql=goals%2C+o%3Agoals%2C+line%2C+total%40";
   } else if (mySport === "mlb") {
     // probably need to use runs instead of goals/points
@@ -176,6 +178,6 @@ function buildCheckQueryRequestUrl(origUrl, checkDate, season) {
     returnUrl += "+and+date>%3D" + checkDate;
   }
   returnUrl += "&output=json&api_key=guest";
-  // console.log("Check Query API URL: " + returnUrl);
+  console.log("Check Query API URL: " + returnUrl);
   return returnUrl;
 }
