@@ -30,6 +30,7 @@ module.exports = {
     var checkJsonResults = this.stripJsonCallbackWrapper(syncRequest("GET", url, requestOptions).body.toString());
     // console.log("Check RESULTS: " + JSON.stringify(checkJsonResults,0,2));
     // Look for the team and add it to the teams object
+    // console.log("DEBUG: " + JSON.stringify(checkJsonResults,0,3));
     var pointsForArray = checkJsonResults.groups[0].columns[0];
     var pointsAgainstArray = checkJsonResults.groups[0].columns[1];
     var linesArray = checkJsonResults.groups[0].columns[2];

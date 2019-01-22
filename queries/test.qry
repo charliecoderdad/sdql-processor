@@ -1,3 +1,1 @@
-U|57.6% win rate, but large sample size, solid query|http://sportsdatabase.com/nhl/query?output=default&sdql=rest%3D0+and+p%3Aovertime%3D1+and+o%3Arest<%3D2+and+season>%3D2014
-A|BAD: 1-5 for 2018 as of Nov27...STRONG-High elevation angle|http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+team+in+[NM%2CWYOM]+and+not+C
-A|http://sportsdatabase.com/ncaabb/query?output=default&sdql=H+and+opp%3Amargin%3C-30+and+op%3AW+and+op%3Aline%3E%3D-6
+A|BAD: This query is 6-6 for 2018 as of Nov27|http://sportsdatabase.com/ncaabb/query?output=default&sdql=p%3Apoints*2%3Cop%3Apoints+and+not+HD
